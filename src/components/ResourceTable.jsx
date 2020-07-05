@@ -58,7 +58,7 @@ class ResourceTable extends Component {
         this.setState({ openForm: true });
     }
     handleListUser = () => {
-        this.setState({ openForm: false });
+        this.setState({editSkillData:null, openForm: false });
     }
     handleSearch = (e) => {
         let { users } = this.state;

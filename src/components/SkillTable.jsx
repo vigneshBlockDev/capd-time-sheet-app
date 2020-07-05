@@ -2,20 +2,20 @@ import React, { Component } from 'react';
 import { Table, FormGroup, Label, Input } from 'reactstrap';
 import { Button } from 'reactstrap';
 import { AiFillDelete, AiFillEdit } from 'react-icons/ai';
-import ProjectForm from './projectForm';
+import SkillForm from './SkillForm';
 
-class ProjectTable extends Component {
+class SkillTable extends Component {
     state = {
-        users: null,
+        Skills: null,
         showModal: false,
-        editUserData: null,
+        editSkillData: null,
         openForm: false,
         searchquery: '',
-        filteredUsers: [],
+        filteredSkills: [],
     }
-    getUsers = async () => {
+    getSkills = async () => {
         try {
-            let response = await fetch(`http://localhost:4000/api/getprojects`, {
+            let response = await fetch(`http://localhost:4000/api/getskills`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -23,36 +23,36 @@ class ProjectTable extends Component {
             });
             response = await response.json();
             console.log(response);
-            this.setState({ users: response.data });
+            this.setState({ Skills: response.data });
         } catch (error) {
             console.log(error);
         }
     }
     componentDidMount() {
-        this.setState({editUserData:''}, () => this.getUsers());
+        this.setState({}, () => this.getSkills());
     }
-    handleDelete = async (deleteUser) => {
+    handleDelete = async (deletSkill) => {
         // /api/deleteresources
         try {
-            let response = await fetch(`http://localhost:4000/api/deleteproject`, {
+            let response = await fetch(`http://localhost:4000/api/deleteskill`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ project: deleteUser }),
+                body: JSON.stringify({ skill: deletSkill }),
             });
             response = await response.json();
-            this.getUsers();
+            this.getSkills();
         } catch (error) {
             console.log(error);
         }
     }
     backNavigation = () => {
-        this.setState({ openForm: false }, () => this.getUsers());
+        this.setState({openForm: false }, () => this.getSkills());
     }
 
-    handleEdit = (editUser) => {
-        this.setState({ editUserData: editUser, openForm: true });
+    handleEdit = (editSkill) => {
+        this.setState({ editSkillData: editSkill, openForm: true });
     }
     handleCreateuser = () => {
         this.setState({ openForm: true });
@@ -61,39 +61,39 @@ class ProjectTable extends Component {
         this.setState({editSkillData:null, openForm: false });
     }
     handleSearch = (e) => {
-        let { users } = this.state;
+        let { Skills } = this.state;
         let searchquery = e.target.value;
         if (!searchquery) {
-            this.setState({ users, searchquery, filteredUsers: [] });
+            this.setState({ Skills, searchquery, filteredSkills: [] });
             return;
         }
-        let filteredUsers = users.filter((user) => user.Project_Name.toLowerCase().startsWith(searchquery.toLowerCase()));
-        console.log(filteredUsers);
-        this.setState({ filteredUsers: filteredUsers, searchquery });
+        let filteredSkills = Skills.filter((skill) => skill.Skill_Name.toLowerCase().startsWith(searchquery.toLowerCase()));
+        console.log(filteredSkills);
+        this.setState({ filteredSkills: filteredSkills, searchquery });
     }
     getSearchData = () => {
-        const { users, filteredUsers } = this.state;
-        if (filteredUsers.length > 0) {
+        const { Skills, filteredSkills } = this.state;
+        if (filteredSkills.length > 0) {
             return {
-                users: filteredUsers,
+                Skills: filteredSkills,
             }
         } else {
             return {
-                users,
+                Skills,
             }
         }
     }
     render() {
-        const { openForm, editUserData, searchquery } = this.state;
-        const { users } = this.getSearchData();
-        console.log(users);
+        const { openForm, editSkillData, searchquery } = this.state;
+        const { Skills } = this.getSearchData();
+        console.log(Skills);
         return (
             <React.Fragment>
                 {!openForm &&
                     <React.Fragment>
-                        <Button color="primary m-5" onClick={this.handleCreateuser}>Create New Project</Button>
+                        <Button color="primary m-5" onClick={this.handleCreateuser}>Create New Skill</Button>
                         <FormGroup>
-                            <Label for="SearchResources">Search Project</Label>
+                            <Label for="SearchResources">Search Skill</Label>
                             <Input
                                 id="SearchResources"
                                 name="SearchResources"
@@ -106,33 +106,31 @@ class ProjectTable extends Component {
                         </FormGroup>
                     </React.Fragment>
                 }
-                {openForm && <Button color="primary m-5" onClick={this.handleListUser}>List Project</Button>}
+                {openForm && <Button color="primary m-5" onClick={this.handleListUser}>List Skill</Button>}
                 {!openForm ? <Table dark>
                     <thead>
                         <tr>
-                            <th>Project_ID</th>
-                            <th>Project_Code</th>
-                            <th>Project_Name</th>
+                            <th>Skill_ID</th>
+                            <th>Skill_Name</th>
                             <th>Delete</th>
                             <th>Edit</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {users && users.map((user, index) => (
+                        {Skills && Skills.map((skill, index) => (
                             <tr key={index} >
-                                <th scope="row">{user.Project_ID}</th>
-                                <td>{user.Project_Code}</td>
-                                <td>{user.Project_Name}</td>
-                                <td ><AiFillDelete onClick={() => this.handleDelete(user)} /></td>
-                                <td ><AiFillEdit onClick={() => this.handleEdit(user)} /></td>
+                                <th scope="row">{skill.Skill_ID}</th>
+                                <td>{skill.Skill_Name}</td>
+                                <td ><AiFillDelete onClick={() => this.handleDelete(skill)} /></td>
+                                <td ><AiFillEdit onClick={() => this.handleEdit(skill)} /></td>
                                 
                             </tr>
                         ))}
                     </tbody>
-                </Table> : <ProjectForm project={editUserData} back={this.backNavigation} />}
+                </Table> : <SkillForm skill={editSkillData} back={this.backNavigation} />}
             </React.Fragment>
         );
     }
 }
 
-export default ProjectTable;
+export default SkillTable;
