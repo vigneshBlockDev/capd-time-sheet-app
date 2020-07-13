@@ -3,6 +3,7 @@ import { Table, FormGroup, Label, Input } from 'reactstrap';
 import { Button } from 'reactstrap';
 import { AiFillDelete, AiFillEdit } from 'react-icons/ai';
 import UserForm from './userForm';
+import NavBar from './NavBar';
 
 class ResourceTable extends Component {
     state = {
@@ -58,7 +59,7 @@ class ResourceTable extends Component {
         this.setState({ openForm: true });
     }
     handleListUser = () => {
-        this.setState({editSkillData:null, openForm: false });
+        this.setState({ editSkillData: null, openForm: false });
     }
     handleSearch = (e) => {
         let { users } = this.state;
@@ -89,9 +90,10 @@ class ResourceTable extends Component {
         console.log(users);
         return (
             <React.Fragment>
+                <NavBar />
                 {!openForm &&
                     <React.Fragment>
-                        <Button color="primary m-5" onClick={this.handleCreateuser}>Create New User</Button>
+                        {localStorage.getItem('isAdmin') === 'true' && <Button color="primary m-5" onClick={this.handleCreateuser}>Create New User</Button>}
                         <FormGroup>
                             <Label for="SearchResources">Search Resource</Label>
                             <Input
@@ -117,8 +119,8 @@ class ResourceTable extends Component {
                             <th>City</th>
                             <th>Shore</th>
                             <th>Skill_Set</th>
-                            <th>Delete</th>
-                            <th>Edit</th>
+                            {localStorage.getItem('isAdmin') === 'true' && <React.Fragment><th>Delete</th>
+                                <th>Edit</th></React.Fragment>}
                         </tr>
                     </thead>
                     <tbody>
@@ -131,8 +133,8 @@ class ResourceTable extends Component {
                                 <td>{user.City}</td>
                                 <td>{user.Shore}</td>
                                 <td>{user.Skill_Set}</td>
-                                <td ><AiFillDelete onClick={() => this.handleDelete(user)} /></td>
-                                <td ><AiFillEdit onClick={() => this.handleEdit(user)} /></td>
+                                {localStorage.getItem('isAdmin') === 'true' && <React.Fragment>  <td ><AiFillDelete onClick={() => this.handleDelete(user)} /></td>
+                                    <td ><AiFillEdit onClick={() => this.handleEdit(user)} /></td>  </React.Fragment>}
                             </tr>
                         ))}
                     </tbody>

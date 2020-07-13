@@ -3,6 +3,7 @@ import { Table, FormGroup, Label, Input } from 'reactstrap';
 import { Button } from 'reactstrap';
 import { AiFillDelete, AiFillEdit } from 'react-icons/ai';
 import SkillForm from './SkillForm';
+import NavBar from './NavBar';
 
 class SkillTable extends Component {
     state = {
@@ -48,7 +49,7 @@ class SkillTable extends Component {
         }
     }
     backNavigation = () => {
-        this.setState({openForm: false }, () => this.getSkills());
+        this.setState({ openForm: false }, () => this.getSkills());
     }
 
     handleEdit = (editSkill) => {
@@ -58,7 +59,7 @@ class SkillTable extends Component {
         this.setState({ openForm: true });
     }
     handleListUser = () => {
-        this.setState({editSkillData:null, openForm: false });
+        this.setState({ editSkillData: null, openForm: false });
     }
     handleSearch = (e) => {
         let { Skills } = this.state;
@@ -89,9 +90,10 @@ class SkillTable extends Component {
         console.log(Skills);
         return (
             <React.Fragment>
+                <NavBar />
                 {!openForm &&
                     <React.Fragment>
-                        <Button color="primary m-5" onClick={this.handleCreateuser}>Create New Skill</Button>
+                         {localStorage.getItem('isAdmin') === 'true' && <Button color="primary m-5" onClick={this.handleCreateuser}>Create New Skill</Button>}
                         <FormGroup>
                             <Label for="SearchResources">Search Skill</Label>
                             <Input
@@ -112,8 +114,11 @@ class SkillTable extends Component {
                         <tr>
                             <th>Skill_ID</th>
                             <th>Skill_Name</th>
-                            <th>Delete</th>
-                            <th>Edit</th>
+                            {localStorage.getItem('isAdmin') === 'true' &&
+                                <React.Fragment>
+                                    <th>Delete</th>
+                                    <th>Edit</th>
+                                </React.Fragment>}
                         </tr>
                     </thead>
                     <tbody>
@@ -121,9 +126,12 @@ class SkillTable extends Component {
                             <tr key={index} >
                                 <th scope="row">{skill.Skill_ID}</th>
                                 <td>{skill.Skill_Name}</td>
-                                <td ><AiFillDelete onClick={() => this.handleDelete(skill)} /></td>
-                                <td ><AiFillEdit onClick={() => this.handleEdit(skill)} /></td>
-                                
+                                {localStorage.getItem('isAdmin') === 'true' &&
+                                    <React.Fragment>
+                                        <td ><AiFillDelete onClick={() => this.handleDelete(skill)} /></td>
+                                        <td ><AiFillEdit onClick={() => this.handleEdit(skill)} /></td>
+                                    </React.Fragment>}
+
                             </tr>
                         ))}
                     </tbody>

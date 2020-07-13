@@ -1,23 +1,26 @@
 import axios from "axios";
-axios.interceptors.response.use(null, error => {
-    console.log(error);
-    const expectedError =
-        error.response &&
-        error.response.status >= 400 &&
-        error.response.status < 500;
 
-    if (!expectedError) {
-        console.log(error);
-        // toast.error("An unexpected error occurrred.");
-    }
+// axios.interceptors.response.use(null, error => {
+//   const expectedError =
+//     error.response &&
+//     error.response.status >= 400 &&
+//     error.response.status < 500;
 
-    return Promise.reject(error);
-});
+//   if (!expectedError) {
+//     console.log(error);
+//   }
 
+//   return Promise.reject(error);
+// });
+
+function setJwt(jwt) {
+  axios.defaults.headers.common["x-auth-token"] = jwt;
+}
 
 export default {
-    get: axios.get,
-    post: axios.post(),
-    put: axios.put(),
-    delete: axios.delete(),
+  get: axios.get,
+  post: axios.post,
+  put: axios.put,
+  delete: axios.delete,
+  setJwt
 };

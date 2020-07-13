@@ -3,6 +3,7 @@ import { Table, FormGroup, Label, Input } from 'reactstrap';
 import { Button } from 'reactstrap';
 import { AiFillDelete, AiFillEdit } from 'react-icons/ai';
 import ProjectForm from './projectForm';
+import NavBar from './NavBar';
 
 class ProjectTable extends Component {
     state = {
@@ -29,7 +30,7 @@ class ProjectTable extends Component {
         }
     }
     componentDidMount() {
-        this.setState({editUserData:''}, () => this.getUsers());
+        this.setState({ editUserData: '' }, () => this.getUsers());
     }
     handleDelete = async (deleteUser) => {
         // /api/deleteresources
@@ -58,7 +59,7 @@ class ProjectTable extends Component {
         this.setState({ openForm: true });
     }
     handleListUser = () => {
-        this.setState({editSkillData:null, openForm: false });
+        this.setState({ editSkillData: null, openForm: false });
     }
     handleSearch = (e) => {
         let { users } = this.state;
@@ -89,9 +90,10 @@ class ProjectTable extends Component {
         console.log(users);
         return (
             <React.Fragment>
+                <NavBar />
                 {!openForm &&
                     <React.Fragment>
-                        <Button color="primary m-5" onClick={this.handleCreateuser}>Create New Project</Button>
+                        {localStorage.getItem('isAdmin') === 'true' && <Button color="primary m-5" onClick={this.handleCreateuser}>Create New Project</Button>}
                         <FormGroup>
                             <Label for="SearchResources">Search Project</Label>
                             <Input
@@ -113,8 +115,11 @@ class ProjectTable extends Component {
                             <th>Project_ID</th>
                             <th>Project_Code</th>
                             <th>Project_Name</th>
-                            <th>Delete</th>
-                            <th>Edit</th>
+                            {localStorage.getItem('isAdmin') === 'true' &&
+                                <React.Fragment>
+                                    <th>Delete</th>
+                                    <th>Edit</th>
+                                </React.Fragment>}
                         </tr>
                     </thead>
                     <tbody>
@@ -123,9 +128,12 @@ class ProjectTable extends Component {
                                 <th scope="row">{user.Project_ID}</th>
                                 <td>{user.Project_Code}</td>
                                 <td>{user.Project_Name}</td>
-                                <td ><AiFillDelete onClick={() => this.handleDelete(user)} /></td>
-                                <td ><AiFillEdit onClick={() => this.handleEdit(user)} /></td>
-                                
+                                {localStorage.getItem('isAdmin') === 'true' &&
+                                    <React.Fragment>
+                                        <td ><AiFillDelete onClick={() => this.handleDelete(user)} /></td>
+                                        <td ><AiFillEdit onClick={() => this.handleEdit(user)} /></td>
+                                    </React.Fragment>}
+
                             </tr>
                         ))}
                     </tbody>
