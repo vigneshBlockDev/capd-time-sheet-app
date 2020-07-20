@@ -25,15 +25,15 @@ const LoginForm = ({history}) => {
         enableReinitialize: true,
         onSubmit: async values => {
             const response = await axios.post('http://localhost:4000/api/login', { values });
-            if(response.data.status === 400){
-                alert('Login Failed');
+            console.log(response);
+            if(response.data.status != 200){
+                alert(response.data.message);
             }else{
                 localStorage.setItem('isAdmin',response.data.isAdmin)
                 localStorage.setItem('login',true);
                 alert('Login success');
                 history.push('/ResourceDetails');                
             }
-          
         },
     });
     return (
@@ -71,6 +71,7 @@ const LoginForm = ({history}) => {
                     ) : null}
                 </FormGroup>
                 <Button type='submit'>Login</Button>
+                 <Button type='button' className='m-5'><a href='/RegisterForm'>Register</a></Button>
             </Form>
         </div>
     );

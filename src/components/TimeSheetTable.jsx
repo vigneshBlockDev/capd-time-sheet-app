@@ -1,117 +1,178 @@
 import React, { Component } from 'react';
 import { Table, FormGroup, Label, Input } from 'reactstrap';
 import { Button } from 'reactstrap';
-import { AiFillDelete, AiFillEdit } from 'react-icons/ai';
-import SkillForm from './SkillForm';
+import {  AiFillEdit } from 'react-icons/ai';
+import httpServices from '../services/httpServices';
+import TimeSheetForm from './TimeSheetForm';
 
-class SkillTable extends Component {
+class TimeSheetTable extends Component {
     state = {
-        timeSheetData: null,
-        showModal: false,
-        editSkillData: null,
-        openForm: false,
-        searchquery: '',
         filteredtimeSheetData: [],
+        availableMonths: [],
+        availableYear: [],
+        week: [],
+        projects: [],
+        resources: [],
+        resourceName: '',
+        selectedMonth: '',
+        selectedYear: '',
+        timeSheetData: [],
+        editTimeSheetData : {},
+        openForm :false,
     }
     getTimeSheetData = async () => {
-        try {
-            let response = await fetch(`http://localhost:4000/api/getResourceTimeSheet`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                }
-            });
-            response = await response.json();
+        const { resourceName, selectedMonth, selectedYear } = this.state;
+        if (resourceName && selectedMonth && selectedYear) {
+            let response = await httpServices.get(`http://localhost:4000/api/getTimeSheetRecord`);
             console.log(response);
-            this.setState({ timeSheetData: response.data });
-        } catch (error) {
-            console.log(error);
+            if (response.data.status !== 200) {
+                alert('No Record Found');
+            } else {
+                this.setState({ timeSheetData: response.data.data });
+            }
         }
     }
-    componentDidMount() {
-        this.setState({}, () => this.getTimeSheetData());
-    }
-    handleDelete = async (deletSkill) => {
-        // /api/deleteresources
-        try {
-            let response = await fetch(`http://localhost:4000/api/deleteskill`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ skill: deletSkill }),
-            });
-            response = await response.json();
-            this.getTimeSheetData();
-        } catch (error) {
-            console.log(error);
-        }
-    }
-    backNavigation = () => {
-        this.setState({openForm: false }, () => this.getTimeSheetData());
+    async componentDidMount() {
+        let month = [];
+        let year = [];
+        let timesheet = await httpServices.get('http://localhost:4000/api/getAllData');
+        timesheet = timesheet.data;
+        this.setState({
+            week: timesheet.week,
+            projects: timesheet.projects,
+            resources: timesheet.resources,
+            skill: timesheet.skill,
+        }, () => {
+            this.state.week.map(data => {
+                month.push(data.Month);
+                year.push(data.Year);
+            })
+            this.setAvailableMonths(month, year);
+        })
     }
 
-    handleEdit = (editSkill) => {
-        this.setState({ editSkillData: editSkill, openForm: true });
+    setAvailableMonths = (months, years) => {
+        months = [...new Set(months)];
+        years = [...new Set(years)];
+        this.setState({
+            availableMonths: months,
+            availableYear: years,
+        })
     }
     
-    handleShowTimeSheetTable = () => {
-        this.setState({editSkillData:null, openForm: false });
+    backNavigation = () => {
+        this.setState({ openForm: false }, () => this.getTimeSheetData());
     }
-    // handleSearch = (e) => {
-    //     let { Skills } = this.state;
-    //     let searchquery = e.target.value;
-    //     if (!searchquery) {
-    //         this.setState({ Skills, searchquery, filteredSkills: [] });
-    //         return;
-    //     }
-    //     let filteredSkills = Skills.filter((skill) => skill.Skill_Name.toLowerCase().startsWith(searchquery.toLowerCase()));
-    //     console.log(filteredSkills);
-    //     this.setState({ filteredSkills: filteredSkills, searchquery });
-    // }
-    getSearchData = () => {
-        const { Skills, filteredSkills } = this.state;
-        if (filteredSkills.length > 0) {
-            return {
-                Skills: filteredSkills,
-            }
-        } else {
-            return {
-                Skills,
-            }
-        }
+
+    handleEdit = (data) => {
+        this.setState({ editTimeSheetData: data, openForm: true });
+    }
+
+    handleShowTimeSheetTable = () => {
+        this.setState({ editSkillData: null, openForm: false });
+    }
+
+    handleResourceName = (e) => {
+        this.setState({ resourceName: e.target.value },() => {
+            this.getTimeSheetData();
+        });
+    }
+    handleMonth = (e) => {
+        this.setState({ selectedMonth: e.target.value },() => {
+            this.getTimeSheetData();
+        });
+    }
+
+    handleYear = (e) => {
+        this.setState({ selectedYear: e.target.value },() => {
+            this.getTimeSheetData();
+        });
     }
     render() {
-        const { openForm, editSkillData, searchquery } = this.state;
-        const { timeSheetData } = this.getSearchData();
-        console.log(Skills);
+        const { projects, openForm, resources, skill, week, availableMonths, availableYear,selectedMonth,selectedYear,resourceName,timeSheetData,editTimeSheetData } = this.state;
         return (
             <React.Fragment>
-                {openForm && <Button color="primary m-5" onClick={this.handleShowTimeSheetTable}>Show Time Sheet Data</Button>}
-                {!openForm ? <Table dark>
-                    <thead>
-                        <tr>
-                            <th>Project ID</th>
-                            <th>Project Name</th>
-                            <th>Resource Name</th>
-                            <th>Week Number</th>
-                            <th>Edit</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {timeSheetData && timeSheetData.map((sheet, index) => (
-                            <tr key={index} >
-                                <th scope="row">{sheet.Skill_ID}</th>
-                                <td>{sheet.Skill_Name}</td>
-                                <td ><AiFillEdit onClick={() => this.handleEdit(sheet)} /></td>
-                                
+                {!openForm ? <React.Fragment>
+                    <div className="row">
+                        <div className="p-5">
+                            <FormGroup>
+                                <Label for="Resource_Name">Resource Name</Label>
+                                <Input type="select"
+                                    name="Resource_Name"
+                                    id="Resource_Name"
+                                    value={resourceName}
+                                    onChange={this.handleResourceName}
+                                >
+                                    <option selected="true" disabled="disabled" value="">Choose Resource</option>
+                                    {resources.length > 0 && resources.map(resource => (
+                                        <option key={resource.Resource_Name} value={resource.Resource_Name}>{resource.Resource_Name}</option>
+                                    ))}
+                                </Input>
+                            </FormGroup>
+                        </div>
+                        <div className="p-5">
+                            <FormGroup>
+                                <Label for="month">Month</Label>
+                                <Input type="select"
+                                    name="month"
+                                    id="month"
+                                    value={selectedMonth}
+                                    onChange={this.handleMonth}
+                                >
+                                    <option selected="true" disabled="disabled" value="">Choose Month</option>
+                                    {availableMonths.length > 0 && availableMonths.map(data => (
+                                        <option key={data} value={data}>{data}</option>
+                                    ))}
+                                </Input>
+                            </FormGroup>
+                        </div>
+                        <div className="p-5">
+                            <FormGroup>
+                                <Label for="year">Year</Label>
+                                <Input type="select"
+                                    name="year"
+                                    id="year"
+                                    value={selectedYear}
+                                    onChange={this.handleYear}
+                                >
+                                    <option selected="true" disabled="disabled" value="">Choose Year</option>
+                                    {availableYear.length > 0 && availableYear.map(data => (
+                                        <option key={data} value={data}>{data}</option>
+                                    ))}
+                                </Input>
+                            </FormGroup>
+                        </div>
+                    </div>
+                    <Table dark>
+                        <thead>
+                            <tr>
+                                <th>Project Code</th>
+                                <th>Project Name</th>
+                                <th>Planned Hours</th>
+                                <th>Actual Hours</th>
+                                <th>Edit</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </Table> : <SkillForm sheet={editSkillData} back={this.backNavigation} />}
+                        </thead>
+                        <tbody>
+                            {timeSheetData.length > 0 && timeSheetData.map((data, index) => (
+                                <tr key={data.Transaction_ID}>
+                                    <td>{data.Project_Code}</td>
+                                    <td>{data.Project_Name}</td>
+                                    <td>{data.Planned_Hours}</td>
+                                    <td>{data.Actual_Hours}</td>
+                                    <td ><AiFillEdit onClick={() => this.handleEdit(data)} /></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </React.Fragment> :  <TimeSheetForm availableMonths={availableMonths} availableYear={availableYear} week={week} projects={projects} resources={resources} skill={skill} back={this.backNavigation} timeSheetData={editTimeSheetData} />}
+                <div className="container text-centre">
+                    <Button type='button'>Add Details</Button>
+                </div>
+
             </React.Fragment>
         );
     }
 }
 
-export default SkillTable;
+export default TimeSheetTable;

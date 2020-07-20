@@ -2,6 +2,8 @@ import React  from 'react';
 import { Button, Form, FormGroup, Label, Input, FormText } from 'reactstrap';
 import { useFormik } from 'formik';
 import * as Yup from "yup";
+import axios from 'axios';
+import { withRouter } from 'react-router-dom';
 
 
 const validationSchema = Yup.object().shape({
@@ -10,7 +12,8 @@ const validationSchema = Yup.object().shape({
     confirmpassword: Yup.string().required('Confirm Password is Required')
         .oneOf([Yup.ref('password'), null], 'Passwords must match')
 });
-const RegisterForm = () => {
+
+const RegisterForm = ({history}) => {
     const formik = useFormik({
         initialValues: {
             userName: '',
@@ -20,7 +23,14 @@ const RegisterForm = () => {
         validationSchema,
         enableReinitialize: true,
         onSubmit: async values => {
+            delete values.confirmpassword;
             console.log(values);
+            const response = await axios.post('http://localhost:4000/api/registerUser', { user:values });
+            if(response.data.status != 200){
+                alert(response.data.message);
+            }else{
+                history.push('/login');
+            }
         },
     });
     return (
@@ -72,10 +82,11 @@ const RegisterForm = () => {
                     ) : null}
                 </FormGroup>
                 <Button type='submit'>Submit</Button>
+                <Button type='button' className='m-5'><a href='/login'>Login</a></Button>
             </Form>
         </div>
     );
 }
 
-export default RegisterForm;
+export default withRouter(RegisterForm);
 
