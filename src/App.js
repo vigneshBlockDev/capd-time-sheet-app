@@ -9,6 +9,7 @@ import NavBar from './components/NavBar';
 import SkillTable from './components/SkillTable';
 import TimeSheetPage from './components/TimeSheetPage';
 import TimeSheetTable from './components/TimeSheetTable';
+import ResourceForm from './components/Resource/resourceForm_new';
 function App() {
   return (
     <div className='container'>
@@ -21,6 +22,7 @@ function App() {
         <Route path="/SkillDetails" component={SkillTable} />
         <Route path="/TimeSheetDetails" component={TimeSheetTable} />
         <Route path="/TimeSheetForm" component={TimeSheetPage} />
+        <Route path="/Test" component={ResourceForm} />
         <Redirect to="/" />
       </Switch>
     </div>

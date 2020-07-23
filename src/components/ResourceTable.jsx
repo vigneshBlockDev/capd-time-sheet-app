@@ -125,7 +125,7 @@ class ResourceTable extends Component {
                     </thead>
                     <tbody>
                         {users && users.map((user, index) => (
-                            <tr key={index} >
+                            <tr key={index}>
                                 <th scope="row">{user.Resource_ID}</th>
                                 <td>{user.Resource_Name}</td>
                                 <td>{user.SOW_Category}</td>

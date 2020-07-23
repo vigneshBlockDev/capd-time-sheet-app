@@ -4,8 +4,10 @@ import { Button } from 'reactstrap';
 import {  AiFillEdit } from 'react-icons/ai';
 import httpServices from '../services/httpServices';
 import TimeSheetForm from './TimeSheetForm';
+import { withRouter } from 'react-router-dom';
+import NavBar from './NavBar';
 
-class TimeSheetTable extends Component {
+class   TimeSheetTable extends Component {
     state = {
         filteredtimeSheetData: [],
         availableMonths: [],
@@ -88,10 +90,15 @@ class TimeSheetTable extends Component {
             this.getTimeSheetData();
         });
     }
+    openForm = () => {
+        const { history } = this.props;
+        history.push('/TimeSheetForm');
+    }
     render() {
         const { projects, openForm, resources, skill, week, availableMonths, availableYear,selectedMonth,selectedYear,resourceName,timeSheetData,editTimeSheetData } = this.state;
         return (
             <React.Fragment>
+                 <NavBar />
                 {!openForm ? <React.Fragment>
                     <div className="row">
                         <div className="p-5">
@@ -166,13 +173,13 @@ class TimeSheetTable extends Component {
                         </tbody>
                     </Table>
                 </React.Fragment> :  <TimeSheetForm availableMonths={availableMonths} availableYear={availableYear} week={week} projects={projects} resources={resources} skill={skill} back={this.backNavigation} timeSheetData={editTimeSheetData} />}
-                <div className="container text-centre">
-                    <Button type='button'>Add Details</Button>
-                </div>
+                {localStorage.getItem('isAdmin') === 'true' && <div className="container text-centre">
+                    <Button type='button' onClick={this.openForm} >Add Details</Button>
+                </div>}
 
             </React.Fragment>
         );
     }
 }
 
-export default TimeSheetTable;
+export default  withRouter(TimeSheetTable);
