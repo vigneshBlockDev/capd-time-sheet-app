@@ -53,8 +53,8 @@ const TimeSheetForm = ({ week, projects, resources, skills, availableYear, avail
                             disabled={timeSheetData && 'disabled'}
                         >
                             <option selected="true" disabled="disabled" value="">Choose Projects</option>
-                            {projects.length > 0 && projects.map(project => (
-                                <option value={project.Project_Name}>{project.Project_Name}</option>
+                            {projects.length > 0 && projects.map((project,index) => (
+                                <option key={index} value={project.Project_Name}>{project.Project_Name}</option>
                             ))}
                         </Input>
                     </FormGroup>
@@ -102,8 +102,8 @@ const TimeSheetForm = ({ week, projects, resources, skills, availableYear, avail
                             style={{ display: 'block' }}
                         >
                             <option selected="true" disabled="disabled" value="">Choose Year</option>
-                            {availableYear.length > 0 && availableYear.map(data => (
-                                <option value={data}>{data}</option>
+                            {availableYear.length > 0 && availableYear.map((data,index) => (
+                                <option key={index} value={data}>{data}</option>
                             ))}
                         </Input>
                     </FormGroup>}
@@ -119,8 +119,8 @@ const TimeSheetForm = ({ week, projects, resources, skills, availableYear, avail
                             disabled={timeSheetData && 'disabled'}
                         >
                             <option selected="true" disabled="disabled" value="">Choose End Date</option>
-                            {week.length > 0 && week.map(data => (
-                                <option value={moment(data.To_Date).format("MMM Do YYYY")}>{moment(data.To_Date).format("MMM Do YYYY")}</option>
+                            {week.length > 0 && week.map((data,index) => (
+                                <option key={index} value={moment(data.To_Date).format("MMM Do YYYY")}>{moment(data.To_Date).format("MMM Do YYYY")}</option>
                             ))}
                         </Input>
                     </FormGroup>
@@ -142,7 +142,7 @@ const TimeSheetForm = ({ week, projects, resources, skills, availableYear, avail
                             type="plannedHours"
                             onChange={formik.handleChange}
                             value={formik.values.plannedHours}
-                            disabled={localStorage.getItem('isAdmin') === 'false' ? 'disabled' : ''}
+                            disabled={localStorage.getItem('isAdmin') === 'true' ? 'false' : 'true'}
                         />
                     </FormGroup>
                     <Button type='submit'>Submit</Button>

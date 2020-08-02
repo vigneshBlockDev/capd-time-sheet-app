@@ -25,7 +25,7 @@ class   TimeSheetTable extends Component {
     getTimeSheetData = async () => {
         const { resourceName, selectedMonth, selectedYear } = this.state;
         if (resourceName && selectedMonth && selectedYear) {
-            let response = await httpServices.get(`http://localhost:4000/api/getTimeSheetRecord`);
+            let response = await httpServices.post(`http://localhost:4000/api/getTimeSheetRecord`, { resourcename: resourceName, year: selectedYear, month: selectedMonth });
             console.log(response);
             if (response.data.status !== 200) {
                 alert('No Record Found');

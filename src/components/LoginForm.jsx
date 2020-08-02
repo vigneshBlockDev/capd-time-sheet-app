@@ -29,7 +29,9 @@ const LoginForm = ({history}) => {
             if(response.data.status != 200){
                 alert(response.data.message);
             }else{
-                localStorage.setItem('isAdmin',response.data.isAdmin)
+                console.log(response);
+                localStorage.setItem('isAdmin',response.data.isAdmin);
+                localStorage.setItem('username',response.data.username);
                 localStorage.setItem('login',true);
                 alert('Login success');
                 history.push('/ResourceDetails');                

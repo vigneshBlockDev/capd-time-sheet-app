@@ -9,7 +9,9 @@ import NavBar from './components/NavBar';
 import SkillTable from './components/SkillTable';
 import TimeSheetPage from './components/TimeSheetPage';
 import TimeSheetTable from './components/TimeSheetTable';
-import ResourceForm from './components/Resource/resourceForm_new';
+// import ResourceForm from './components/Resource/resourceForm_new';
+import ResourceForm from './Resource/resourceForm';
+import ManagerForm from './Manager/managerForm';
 function App() {
   return (
     <div className='container'>
@@ -22,6 +24,8 @@ function App() {
         <Route path="/SkillDetails" component={SkillTable} />
         <Route path="/TimeSheetDetails" component={TimeSheetTable} />
         <Route path="/TimeSheetForm" component={TimeSheetPage} />
+        <Route path='/ManagerForm' component={ManagerForm} />
+        <Route path='/ResourceForm' component={ResourceForm} />
         <Route path="/Test" component={ResourceForm} />
         <Redirect to="/" />
       </Switch>
