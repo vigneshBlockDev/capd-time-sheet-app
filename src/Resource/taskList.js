@@ -10,23 +10,25 @@ const TaskList = (props) => {
           </td>
 
           <td>
+          { val.isSavedMode === true ? val.projectName :
             <select type="text" data-id={idx} required className="form-control "
-              onChange={(event) => props.select(val, 'prj', event)} >
+              onChange={(event) => props.select(val, 'prj', event)} value={val.projectCode}>
               <option />
               {
-                props.projAssigneLists.map((list, idx1) => (
+                props.projectLists.map((list, idx1) => (
                   <option value={list.Project_Code}  key={list.Project_Code + idx1}>{list.Project_Name}</option>
                 ))}
             </select>
+          }
           </td>
-
           <td>
             {val.planned} 
           </td>
-            
           <td>
-            <input name="text" data-id={idx} className="form-control" value={val.actual} required onInput={(event) => props.select(val, 'A', event)}></input>
-          </td> 
+ 
+            <input name="text" data-id={idx} className="form-control" maxLength = "2" value={val.actual} required onInput={(event) => props.select(val, 'A', event)} ></input>
+          {/* onChange= {(e) => props.selectPlanned(e.target.value)} */}
+        </td> 
 
           <td>
             {

@@ -12,9 +12,10 @@ import TimeSheetTable from './components/TimeSheetTable';
 // import ResourceForm from './components/Resource/resourceForm_new';
 import ResourceForm from './Resource/resourceForm';
 import ManagerForm from './Manager/managerForm';
+import FooterPage from './components/Footer';
 function App() {
   return (
-    <div className='container'>
+    <div className='container-fluid'>
       <Switch>
         <Route path='/' component={LoginForm} exact />
         <Route path="/login" component={LoginForm} />
@@ -29,6 +30,7 @@ function App() {
         <Route path="/Test" component={ResourceForm} />
         <Redirect to="/" />
       </Switch>
+      <FooterPage/>
     </div>
   );
 }

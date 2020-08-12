@@ -1,5 +1,4 @@
 import React from "react";
-import "../AutoCompleteText.css";
 import "../App.css";
 import TaskList from "./taskList"
 import { NotificationContainer, NotificationManager } from 'react-notifications';
@@ -17,24 +16,20 @@ export default class ResourceForm extends React.Component {
           projectName: "",
           planned: "",
           actual: "",
-          isEditMode: false
         }
       ],
-      date: "",
-      description: "",
-      isHidden: false,
-      months: [],
-      years: [],
       weekList: [],
       resourceList: [],
+      projectList: [],
       year: new Date().getFullYear(),
       weekID: '',
       weekEndDate: '',
       resourceName: '',
       resourceID: '',
-      reqiredMessage: null,
       projAssigneList: [],
       showSuccess: '',
+      regexp: /^\s*\d*\s*$/,
+      respStatus: []
     }
 
   }
@@ -43,14 +38,15 @@ export default class ResourceForm extends React.Component {
     Promise.all([
       fetch(`http://localhost:4000/api/fetchMonthYear`),
       fetch(`http://localhost:4000/api/fetchResourceDetails`),
+      fetch(`http://localhost:4000/api/fetchProjectDetails`),
     ])
 
-      .then(([res1, res2]) => {
-        return Promise.all([res1.json(), res2.json()]);
+      .then(([res1, res2, res3]) => {
+        return Promise.all([res1.json(), res2.json(), res3.json()]);
       })
-      .then(([res1, res2]) => {
+      .then(([res1, res2, res3]) => {
         // set state in here
-        this.setState({ weekList: res1.data, resourceList: res2.data });
+        this.setState({ weekList: res1.data, resourceList: res2.data, projectList: res3.data, });
 
       });
   }
@@ -71,19 +67,32 @@ export default class ResourceForm extends React.Component {
       taskList: [...prevState.taskList, { index: Math.random(), projectCode: "", projectName: "", planned: "", actual: "" }],
     }));
   }
-
-  deteteRow = (index) => {
-    // debugger
+  
+  clickOnDelete(record) {
     this.setState({
-      taskList: this.state.taskList.filter((s, sindex) => index !== sindex),
+      taskList: this.state.taskList.filter(r => r !== record)
     });
-    // const taskList1 = [...this.state.taskList];
-    // taskList1.splice(index, 1);
-    // this.setState({ taskList: taskList1 });
   }
+
+ changeHandler = (e) => {
+    this.setState({ [e.target.name]: e.target.value })
+
+  };
+
+  onChangeActualHrs = (ePlanHrs) => {
+    console.log("plnHrs : " +ePlanHrs)
+     if(!this.state.regexp.test(ePlanHrs)){
+      alert(" Planned Field Its allows only numbers");
+      return true;
+     }
+    }
 
   onChangeSelect = (data, type, event) => {
     console.log(data, type, event);
+    let isActualFieldInValid =  (type === 'prj'? "" :this.onChangeActualHrs(event.target.value))
+    if(isActualFieldInValid && type === 'A'){
+        return false
+    }
     //debugger
     let currState = this.state.taskList.map((item, index) => {
       if (item.index === data.index) {
@@ -100,28 +109,17 @@ export default class ResourceForm extends React.Component {
       console.log("Item : " + item);
       return item
     })
-
-    // console.log("currState : ", currState[0].projectName);
     // debugger
     this.setState((prevState) => ({
       taskList: [...currState]
     }));
     // debugger
     console.log("AFter", this.state.taskList[0].projectName)
+
   }
 
-  clickOnDelete(record) {
-    this.setState({
-      taskList: this.state.taskList.filter(r => r !== record)
-    });
-  }
-
-
-  changeHandler = (e) => {
-    this.setState({ [e.target.name]: e.target.value })
-
-  };
-  changeHandlerWeekId = (e) => {
+  onChangeSelectWeekId = (e) => {
+    debugger
     let objFields = {}
     objFields.resourceID = this.state.resourceID
     objFields.year = this.state.year
@@ -136,32 +134,52 @@ export default class ResourceForm extends React.Component {
       },
       body: JSON.stringify({ idSelection: objFields })
     };
-    // debugger
+     debugger
     const fetchPromise = fetch(`http://localhost:4000/api/fetchAssignedProject`, requestFields);
     fetchPromise.then(response => {
       return response.json();
     }).then(projAssigneList => {
       console.log(projAssigneList);
       this.setState({ projAssigneList: projAssigneList.data })
+      if(projAssigneList.data.length === 0)
+    {
+      alert("No Projects are assigned for this week")
+    }
+    let tempTaskList = []
+      if(projAssigneList.data.length !== 0) {
+     projAssigneList.data.map(prjInfo => {
+      tempTaskList.push({
+        index: Math.random(),
+        actual: prjInfo.Actual_Hours,
+        planned: prjInfo.Planned_Hours,
+        projectCode: prjInfo.Project_Code,
+        projectName : prjInfo.Project_Name,
+        isSavedMode : true
+      })
+    })} else{
+      tempTaskList.push({ 
+        isSavedMode : false
+      })
+    }
+
+    this.setState({
+      taskList: tempTaskList
+    })
     });
+    const fetchPromises = fetch(`http://localhost:4000/api/fetchConfigDetails`);
+    fetchPromises.then(response => {
+    return response.json();
+    }).then(configResponse => {
+        console.log("configResponse : " +configResponse)
+        this.setState({configResponse : configResponse});
+    })
   }
 
-  submitHandler = e => {
-    //this.setState.reqiredMessage="this fieldis"
-    /*this.setState({ reqiredMessage : "This Field Is" })
-    if ( this.state.resourceID != "") {
-      return ""
-    }*/
+  onsubmitHandler = e => {
     e.preventDefault()
-    for (var i = 0; i < this.state.taskList.length; i++) {
-      if (this.state.taskList[i].projectName === '' || this.state.taskList[i].planned === '') {
-        NotificationManager.warning(<h6 class="text-danger">Please Fill up Required Field. Please Check Project name And Planned Field</h6>);
-        return false;
-      }
-    }
     let obj = {}
     obj.weekID = this.state.weekID
-    let weekInfo = this.state.resourceList.filter(item => item.week_ID === Number(this.state.weekID))
+    let weekInfo = this.state.weekList.filter(item => item.week_ID === Number(this.state.weekID))
     obj.weekEndDate = moment(weekInfo[0] && weekInfo[0].To_Date).format('YYYY-MM-DD')
     obj.taskList = this.state.taskList
     obj.resourceID = this.state.resourceID
@@ -169,7 +187,21 @@ export default class ResourceForm extends React.Component {
     console.log("resourceInfo : " + resourceInfo)
     obj.resourceName = resourceInfo[0] && resourceInfo[0].Resource_Name
     obj.year = this.state.year
-    console.log(obj)
+    console.log(obj);
+    let shoreType = resourceInfo[0] && resourceInfo[0].Shore
+    let configInfo = this.state.configResponse.data.filter(item => item.config_key === shoreType)
+    let configValue = configInfo[0] && configInfo[0].config_value
+    console.log("configValue: "+configValue)
+    debugger
+    const plannedHrsTotal = this.state.taskList.reduce((totalHrs, plan) => totalHrs + parseInt(plan.actual, 10), 0);
+    const assignPlanHrs = this.state.projAssigneList.reduce((totalHrs, plan) => totalHrs + parseInt(plan.Actual_Hours, 10), 0);
+    const totalHoursPlan =  plannedHrsTotal + assignPlanHrs;
+   console.log("totalHoursPlan : " + totalHoursPlan);
+   if(plannedHrsTotal > configValue)
+    { 
+      alert( shoreType +" Planned hours for a week should not exceed "+configValue+ "hrs.");
+      return false;
+    }
 
     const requestOptions = {
       method: 'POST',
@@ -179,14 +211,13 @@ export default class ResourceForm extends React.Component {
       },
       body: JSON.stringify({ managerList: obj })
     };
-    const fetchPromise = fetch(`http://localhost:4000/api/resourceTimeSheet`, requestOptions)
-    // .then(response => response.json())
-    fetchPromise.then(response => {
+    const fetchData = fetch('http://localhost:4000/api/resourceTimeSheet', requestOptions)
+    fetchData.then(response => {
       return response.json();
-    }).then(returnObj => {
-      console.log(returnObj);
-      this.setState({ showSuccess: true })
-
+    }).then(respStatus =>{
+    console.log("respStatus : " + respStatus.json)
+    this.setState({ respStatus: respStatus.message});
+      this.setState({ showSuccess: true , taskList : [], resourceID: "", weekID: ""})
       setTimeout(() => {
         this.setState({ showSuccess: false })
       }, 2000)
@@ -194,17 +225,14 @@ export default class ResourceForm extends React.Component {
   }
 
   render() {
-    let { taskList } = this.state;
-    let { projAssigneList } = this.state;
-    const { weekID } = this.state;
-    const { resourceID, showSuccess } = this.state;
-    let successMessage = showSuccess ? "Success : Data Inserted Successfully" : "";
+    const { resourceID, showSuccess, weekID, projectList, taskList } = this.state;
+    let successMessage = showSuccess ? this.state.respStatus : "";
     return (
 
       <div className="content">
         <NotificationContainer />
         <NavBar />
-        <form onSubmit={this.submitHandler} onChange={this.handleChange} >
+        <form onSubmit={this.onsubmitHandler} onChange={this.handleChange} >
           <div class="alert alert-success" role="alert">
             {successMessage}
           </div>
@@ -241,8 +269,6 @@ export default class ResourceForm extends React.Component {
                       <div className="form-group ">
                         <label><b>Year</b></label>
                         <div>{new Date().getFullYear()}</div>
-                        {/*<div>{this.state.reqiredMessage ? this.state.reqiredMessage : ""}</div>*/}
-
                       </div>
 
                     </div>
@@ -251,7 +277,7 @@ export default class ResourceForm extends React.Component {
                         <label className='required'><b>Week</b></label>
                         <select
                           type='text' required
-                          name='weekID' value={weekID} onChange={this.changeHandlerWeekId}
+                          name='weekID' value={weekID} onChange={this.onChangeSelectWeekId}
                           className='form-control'
                           placeholder='Search Month'>
                           <option />
@@ -281,8 +307,9 @@ export default class ResourceForm extends React.Component {
                         add={this.addNewRow}
                         delete={this.clickOnDelete.bind(this)}
                         taskList={taskList}
-                        projAssigneLists={projAssigneList}
+                        projectLists={projectList}
                         select={this.onChangeSelect}
+                        //selectPlanned = {this.onHandlePlannedChange}
 
                       />
                     </tbody>

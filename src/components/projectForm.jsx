@@ -48,7 +48,7 @@ const ProjectForm = ({ project, back }) => {
         <React.Fragment>
             <div className="container p-5">
                 <Form className="w-50" onSubmit={formik.handleSubmit}>
-                    <FormGroup>
+                    {/* <FormGroup>
                         <Label for="Project_ID">Project ID</Label>
                         <Input
                             id="Project_ID"
@@ -58,7 +58,7 @@ const ProjectForm = ({ project, back }) => {
                             value={formik.values.Project_ID}
 
                         />
-                    </FormGroup>
+                    </FormGroup> */}
                     <FormGroup>
                         <Label for="Project_Code">Project Code</Label>
                         <Input

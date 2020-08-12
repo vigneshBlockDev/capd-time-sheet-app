@@ -46,7 +46,7 @@ const SkillForm = ({ skill, back }) => {
         <React.Fragment>
             <div className="container p-5">
                 <Form className="w-50" onSubmit={formik.handleSubmit}>
-                    <FormGroup>
+                    {/* <FormGroup>
                         <Label for="Skill_ID">Skill ID</Label>
                         <Input
                             id="Skill_ID"
@@ -56,7 +56,7 @@ const SkillForm = ({ skill, back }) => {
                             value={formik.values.Skill_ID}
 
                         />
-                    </FormGroup>
+                    </FormGroup> */}
                     <FormGroup>
                         <Label for="Skill_Name">Skill Name</Label>
                         <Input
